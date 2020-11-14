@@ -54,7 +54,10 @@ app.post('/api/persons', (request, response) => {
     const body = request.body;
     
     if (!body.name || !body.number){
-        return response.status(400).json({error: "No empty fiels allowed"});
+        return response.status(400).json({error: "Name or number missing"});
+    }
+    else if (persons.map(person => person.name).includes(body.name)) {
+        return response.status(400).json({error: "Name must bre unique"});
     }
     const person = {
         name: body.name,
