@@ -18,7 +18,14 @@ let persons = [
       "id": 8
     }
   ]
-  
+
+  app.get('/info', (request, response) => {
+    response.send(`
+        <p>Phonebook has infor for ${persons.length} people</p>
+        <p>${new Date()}</p>
+        `);
+});
+
 app.get('/api/persons', (request, response) => {
     response.json(persons);
 });
