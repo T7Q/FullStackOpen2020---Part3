@@ -1,8 +1,10 @@
 const express = require('express');
 const nodemon = require('nodemon');
 const app = express();
+const morgan = require('morgan');
 
 app.use(express.json());
+app.use(morgan('tiny'));
 
 let persons = [
     {
@@ -52,18 +54,17 @@ app.delete('/api/persons/:id', (request, response) => {
 
 app.post('/api/persons', (request, response) => {
     const body = request.body;
-    
-    if (!body.name || !body.number){
-        return response.status(400).json({error: "Name or number missing"});
-    }
-    else if (persons.map(person => person.name).includes(body.name)) {
-        return response.status(400).json({error: "Name must bre unique"});
+
+    if (!body.name || !body.number) {
+        return response.status(400).json({ error: 'Name or number missing' });
+    } else if (persons.map((person) => person.name).includes(body.name)) {
+        return response.status(400).json({ error: 'Name must bre unique' });
     }
     const person = {
         name: body.name,
         number: body.number,
-        id: Math.floor(Math.random() * 10000)
-    }
+        id: Math.floor(Math.random() * 10000),
+    };
     persons = persons.concat(person);
     response.json(person);
 });
