@@ -30,18 +30,21 @@ const PersonForm = ({ persons, setPersons, snackbar }) => {
                         setNewNumber('');
                         snackbar(`${sameContact.name} number was successfully updated`, 'success');
                     })
-                    .catch(() => {
-                        setPersons(persons.filter(person => person.id !== sameContact.id));
-                        snackbar(`${sameContact.name} does not exist`, 'error');
+                    .catch(error => {
+                        snackbar(error.response.data.error, 'error');
                     });
             }
         } else {
-            services.addPerson(newPerson).then((response) => {
+            services.addPerson(newPerson)
+            .then((response) => {
                 setPersons(persons.concat(response));
                 setNewName('');
                 setNewNumber('');
                 snackbar(`Added ${newPerson.name}`, 'success');
-            });
+            })
+            .catch( error => {
+                snackbar(error.response.data.error, 'error');
+            })
         }
     };
 
