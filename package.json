@@ -9,7 +9,8 @@
         "test": "echo \"Error: no test specified\" && exit 1",
         "build:ui": "rm -rf build && cd frontend && npm run build --prod && cp -r build ../",
         "deploy": "git push heroku",
-        "deploy:full": "npm run build:ui && git add . && git commit -m uibuild && npm run deploy"
+        "deploy:full": "npm run build:ui && git add . && git commit -m uibuild && npm run deploy",
+        "lint": "eslint ."
     },
     "author": "Tatiana Kuumola",
     "license": "MIT",
@@ -22,6 +23,7 @@
         "morgan": "^1.10.0"
     },
     "devDependencies": {
+        "eslint": "^7.13.0",
         "nodemon": "^2.0.6"
     }
 }
