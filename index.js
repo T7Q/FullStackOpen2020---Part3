@@ -22,13 +22,15 @@ app.get('/info', (request, response) => {
 });
 
 app.get('/api/persons', (request, response) => {
-    Contact.find({}).then((contacts) => {
-        response.json(contacts);
-    });
+    Contact.find({})
+        .then((contacts) => {
+            response.json(contacts);
+        })
+        .catch((error) => next(error));
 });
 
 app.get('/api/persons/:id', (request, response) => {
-    // const id = Number(request.params.id);
+    const id = Number(request.params.id);
     // const person = persons.find((person) => person.id === id);
     // if (person) {
     Contact.find(id).then((contact) => {
@@ -60,7 +62,10 @@ app.post('/api/persons', (request, response) => {
         name: body.name,
         number: body.number,
     });
-    contact.save().then((savedContact) => response.json(savedContact));
+    contact
+        .save()
+        .then((savedContact) => response.json(savedContact))
+        .catch((error) => next(error));
 });
 
 const errorHandler = (error, request, response, next) => {
