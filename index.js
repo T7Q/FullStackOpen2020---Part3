@@ -14,14 +14,18 @@ app.use(morgan(':method :url :status :res[content-length] - :response-time ms :b
 app.use(cors());
 app.use(express.static('build'));
 
-app.get('/info', (request, response) => {
-    response.send(`
-        <p>Phonebook has infor for ${persons.length} people</p>
-        <p>${new Date()}</p>
-        `);
+app.get('/info', (request, response, next) => {
+    const count = Contact.count()
+        .then((count) => {
+            response.send(`
+            <p>Phonebook has info for ${count} people</p>
+            <p>${new Date()}</p>
+            `);
+        })
+        .catch((error) => next(error));
 });
 
-app.get('/api/persons', (request, response) => {
+app.get('/api/persons', (request, response, next) => {
     Contact.find({})
         .then((contacts) => {
             response.json(contacts);
@@ -29,16 +33,16 @@ app.get('/api/persons', (request, response) => {
         .catch((error) => next(error));
 });
 
-app.get('/api/persons/:id', (request, response) => {
-    Contact.find(request.params.id)
+app.get('/api/persons/:id', (request, response, next) => {
+    Contact.findById(request.params.id)
         .then((contact) => {
-            if (persons) response.json(Person.format(persons));
+            if (contact) response.json(contact);
             else response.status(404).end;
         })
         .catch((error) => next(error));
 });
 
-app.delete('/api/persons/:id', (request, response) => {
+app.delete('/api/persons/:id', (request, response, next) => {
     const id = Number(request.params.id);
     Contact.findByIdAndRemove(request.params.id)
         .then((result) => {
@@ -47,9 +51,14 @@ app.delete('/api/persons/:id', (request, response) => {
         .catch((error) => next(error));
 });
 
-app.post('/api/persons', (request, response) => {
+app.post('/api/persons', (request, response, next) => {
     const body = request.body;
 
+    if (!body.name || !body.number) {
+        return response.status(400).json({
+            error: 'Name or number is missing',
+        });
+    }
     const contact = new Contact({
         name: body.name,
         number: body.number,
@@ -66,7 +75,7 @@ app.put('/api/persons/:id', (request, response, next) => {
     const contact = {
         name: body.name,
         number: body.number,
-    }
+    };
     Contact.findByIdAndUpdate(request.params.id, contact, { new: true })
         .then((updatedContact) => {
             response.json(updatedContact);
@@ -75,10 +84,10 @@ app.put('/api/persons/:id', (request, response, next) => {
 });
 
 const errorHandler = (error, request, response, next) => {
-    console.error(error.message);
-
     if (error.name === 'CastError') {
         return response.status(400).send({ error: 'malformatted id' });
+    } else if (error.name === 'ValidationError') {
+        return response.status(400).json({ error: error.message });
     }
 
     next(error);
