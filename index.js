@@ -30,15 +30,12 @@ app.get('/api/persons', (request, response) => {
 });
 
 app.get('/api/persons/:id', (request, response) => {
-    const id = Number(request.params.id);
-    // const person = persons.find((person) => person.id === id);
-    // if (person) {
-    Contact.find(id).then((contact) => {
-        response.json(contact);
-    });
-    // } else {
-    //     response.status(404).end();
-    // }
+    Contact.find(request.params.id)
+        .then((contact) => {
+            if (persons) response.json(Person.format(persons));
+            else response.status(404).end;
+        })
+        .catch((error) => next(error));
 });
 
 app.delete('/api/persons/:id', (request, response) => {
@@ -53,11 +50,6 @@ app.delete('/api/persons/:id', (request, response) => {
 app.post('/api/persons', (request, response) => {
     const body = request.body;
 
-    // if (!body.name || !body.number) {
-    //     return response.status(400).json({ error: 'Name or number missing' });
-    // } else if (persons.map((person) => person.name).includes(body.name)) {
-    //     return response.status(400).json({ error: 'Name must bre unique' });
-    // }
     const contact = new Contact({
         name: body.name,
         number: body.number,
@@ -65,6 +57,20 @@ app.post('/api/persons', (request, response) => {
     contact
         .save()
         .then((savedContact) => response.json(savedContact))
+        .catch((error) => next(error));
+});
+
+app.put('/api/persons/:id', (request, response, next) => {
+    const body = request.body;
+
+    const contact = {
+        name: body.name,
+        number: body.number,
+    }
+    Contact.findByIdAndUpdate(request.params.id, contact, { new: true })
+        .then((updatedContact) => {
+            response.json(updatedContact);
+        })
         .catch((error) => next(error));
 });
 
